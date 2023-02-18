@@ -15,6 +15,13 @@ namespace vibrance.GUI.common
         Ambiguous = 3
     }
 
+    public enum GraphicsAdapterSelectionStrategy
+    {
+        Auto = 0,
+        Nvidia = 1,
+        Amd = 2
+    }
+
     public class GraphicsAdapterHelper
     {
 
@@ -22,32 +29,58 @@ namespace vibrance.GUI.common
         private static extern IntPtr LoadLibrary(string dllToLoad);
 
         private const string _nvidiaDllName = "nvapi.dll";
-        private static readonly string _amdDllName = Environment.Is64BitOperatingSystem 
+        private static readonly string _amdDllName = Environment.Is64BitOperatingSystem
             ? AMD.vendor.adl64.AdlImport.AtiadlFileName
             : AMD.vendor.adl32.AdlImport.AtiadlFileName;
 
-
-        public static GraphicsAdapter GetAdapter()
+        public static GraphicsAdapter GetAdapter(GraphicsAdapterSelectionStrategy strategy)
         {
-            string windowsFolder = Environment.GetFolderPath(Environment.SpecialFolder.SystemX86);
-            if (File.Exists(Path.Combine(windowsFolder, _amdDllName)) && 
-                File.Exists(Path.Combine(windowsFolder, _nvidiaDllName)))
+            if (strategy == GraphicsAdapterSelectionStrategy.Auto)
             {
-                return GraphicsAdapter.Ambiguous;
+                return AutoSelectAdapter();
             }
-            if (IsAdapterAvailable(_amdDllName))
-            {
-                IAmdAdapter amdAdapter = Environment.Is64BitOperatingSystem ? (IAmdAdapter)new AmdAdapter64() :new AmdAdapter32();
-                if (amdAdapter.IsAvailable())
-                {
-                    return GraphicsAdapter.Amd;
-                }
-            }
-            if (IsAdapterAvailable(_nvidiaDllName))
+            else if (strategy == GraphicsAdapterSelectionStrategy.Nvidia && IsNvidiaAdapterAvailable())
             {
                 return GraphicsAdapter.Nvidia;
             }
+            else if (strategy == GraphicsAdapterSelectionStrategy.Amd && IsAmdAdapterAvailable())
+            {
+                return GraphicsAdapter.Amd;
+            }
             return GraphicsAdapter.Unknown;
+        }
+
+        private static GraphicsAdapter AutoSelectAdapter()
+        {
+            if (AreMultipleDriverDllsPresent())
+                return GraphicsAdapter.Ambiguous;
+            else if (IsAmdAdapterAvailable())
+                return GraphicsAdapter.Amd;
+            else if (IsNvidiaAdapterAvailable())
+                return GraphicsAdapter.Nvidia;
+            else
+                return GraphicsAdapter.Unknown;
+        }
+        public static bool AreMultipleDriverDllsPresent()
+        {
+            string winSys86Directory = Environment.GetFolderPath(Environment.SpecialFolder.SystemX86);
+            return File.Exists(Path.Combine(winSys86Directory, _amdDllName)) &&
+                File.Exists(Path.Combine(winSys86Directory, _nvidiaDllName));
+        }
+
+        private static bool IsAmdAdapterAvailable()
+        {
+            if (!IsAdapterAvailable(_amdDllName))
+            {
+                return false;
+            }
+            IAmdAdapter amdAdapter = Environment.Is64BitOperatingSystem ? (IAmdAdapter)new AmdAdapter64() : new AmdAdapter32();
+            return amdAdapter.IsAvailable();
+        }
+
+        private static bool IsNvidiaAdapterAvailable()
+        {
+            return IsAdapterAvailable(_nvidiaDllName);
         }
 
         private static bool IsAdapterAvailable(string dllName)
@@ -59,7 +92,7 @@ namespace vibrance.GUI.common
             catch (Exception)
             {
                 return false;
-            }    
+            }
         }
     }
 }

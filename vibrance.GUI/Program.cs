@@ -35,7 +35,13 @@ namespace vibrance.GUI
             Application.SetCompatibleTextRenderingDefault(false);
             NativeMethods.SetDllDirectory(CommonUtils.GetVibrance_GUI_AppDataPath());
 
-            GraphicsAdapter adapter = GraphicsAdapterHelper.GetAdapter();
+            GraphicsAdapterSelectionStrategy selectionStrategy = GraphicsAdapterSelectionStrategy.Auto;
+            {
+                SettingsController settingsController = new SettingsController();
+                selectionStrategy = settingsController.ReadGraphicsAdapterSelectionStrategy();
+            }
+            GraphicsAdapter adapter = GraphicsAdapterHelper.GetAdapter(selectionStrategy);
+
             Form vibranceGui = null;
 
             if (adapter == GraphicsAdapter.Amd)

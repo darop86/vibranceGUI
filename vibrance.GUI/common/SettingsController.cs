@@ -32,6 +32,7 @@ namespace vibrance.GUI.common
         const string SzKeyNameRefreshRate = "refreshRate";
         const string SzKeyNameAffectPrimaryMonitorOnly = "affectPrimaryMonitorOnly";
         const string SzKeyNameNeverSwitchResolution = "neverSwitchResolution";
+        const string SzKeyNameGraphicsAdapterSelectionStrategy = "graphicsAdapterSelection";
 
         private string _fileName = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData).ToString() + "\\vibranceGUI\\vibranceGUI.ini";
         private string _fileNameApplicationSettings = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData).ToString() + "\\vibranceGUI\\applicationData.xml";
@@ -95,7 +96,7 @@ namespace vibrance.GUI.common
 
         public void ReadVibranceSettings(GraphicsAdapter graphicsAdapter, out int vibranceWindowsLevel, out bool affectPrimaryMonitorOnly, out bool neverSwitchResolution, out List<ApplicationSetting> applicationSettings)
         {
-            int defaultLevel = 0; 
+            int defaultLevel = 0;
             int maxLevel = 0;
             if (graphicsAdapter == GraphicsAdapter.Nvidia)
             {
@@ -182,10 +183,47 @@ namespace vibrance.GUI.common
                 applicationSettings = new List<ApplicationSetting>();
             }
         }
+        public GraphicsAdapterSelectionStrategy ReadGraphicsAdapterSelectionStrategy()
+        {
+            if (!IsFileExisting(_fileName))
+            {
+                return GraphicsAdapterSelectionStrategy.Auto;
+            }
+            StringBuilder szValueGraphicsAdapterSelectionStrategy = new StringBuilder(1024);
+            GetPrivateProfileString(SzSectionName,
+                SzKeyNameGraphicsAdapterSelectionStrategy,
+                "Auto",
+                szValueGraphicsAdapterSelectionStrategy,
+                Convert.ToUInt32(szValueGraphicsAdapterSelectionStrategy.Capacity),
+                _fileName);
+            try
+            {
+                GraphicsAdapterSelectionStrategy strategy = GraphicsAdapterSelectionStrategy.Auto;
+                if (Enum.TryParse(szValueGraphicsAdapterSelectionStrategy.ToString(), true, out strategy))
+                {
+                    return strategy;
+                }
+            }
+            catch (Exception)
+            { }
+            return GraphicsAdapterSelectionStrategy.Auto;
+        }
+
+        public bool SetGraphicsAdapterSelectionStrategy(GraphicsAdapterSelectionStrategy strategy)
+        {
+            if (!PrepareFile())
+            {
+                return false;
+            }
+
+            WritePrivateProfileString(SzSectionName, SzKeyNameGraphicsAdapterSelectionStrategy, strategy.ToString(), _fileName);
+            return (Marshal.GetLastWin32Error() == 0);
+        }
 
         private bool IsFileExisting(string szFilename)
         {
             return File.Exists(szFilename);
         }
+
     }
 }
