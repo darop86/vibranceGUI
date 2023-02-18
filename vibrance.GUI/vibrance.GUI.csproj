@@ -114,6 +114,12 @@
     <Compile Include="AMD\vendor\IAmdAdapter.cs" />
     <Compile Include="AMD\vendor\utils\CommonUtils.cs" />
     <Compile Include="AMD\vendor\utils\NativeMethods.cs" />
+    <Compile Include="common\GraphicsDriverSelectionUI.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="common\GraphicsDriverSelectionUI.Designer.cs">
+      <DependentUpon>GraphicsDriverSelectionUI.cs</DependentUpon>
+    </Compile>
     <Compile Include="common\ProcessExplorer.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -150,6 +156,9 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="common\SettingsController.cs" />
+    <EmbeddedResource Include="common\GraphicsDriverSelectionUI.resx">
+      <DependentUpon>GraphicsDriverSelectionUI.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="common\ProcessExplorer.resx">
       <DependentUpon>ProcessExplorer.cs</DependentUpon>
     </EmbeddedResource>
