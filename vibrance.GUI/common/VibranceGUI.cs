@@ -553,5 +553,14 @@ namespace vibrance.GUI.common
             ProcessExplorer ex = new ProcessExplorer(this);
             ex.Show();
         }
+
+        private void buttonDriverSelection_Click(object sender, EventArgs e)
+        {
+            SettingsController settingsController = new SettingsController();
+            var currentAdapter = _v.GraphicsAdapter;
+            GraphicsDriverSelectionUI selectionDialog = new GraphicsDriverSelectionUI(settingsController, currentAdapter);
+            selectionDialog.ShowDialog();
+            var selectedStrategy = selectionDialog.GetSelectedStrategy();
+        }
     }
 }

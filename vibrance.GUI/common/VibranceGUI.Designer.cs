@@ -55,6 +55,7 @@
             this.buttonRemoveProgram = new System.Windows.Forms.Button();
             this.listApplications = new System.Windows.Forms.ListView();
             this.buttonAddProgram = new System.Windows.Forms.Button();
+            this.buttonDriverSelection = new System.Windows.Forms.Button();
             this.contextMenuStrip.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -119,6 +120,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.buttonDriverSelection);
             this.groupBox1.Controls.Add(this.checkBoxNeverChangeResolutions);
             this.groupBox1.Controls.Add(this.checkBoxPrimaryMonitorOnly);
             this.groupBox1.Controls.Add(this.groupBox3);
@@ -291,6 +293,7 @@
             // 
             // listApplications
             // 
+            this.listApplications.HideSelection = false;
             this.listApplications.Location = new System.Drawing.Point(7, 49);
             this.listApplications.Name = "listApplications";
             this.listApplications.Size = new System.Drawing.Size(384, 172);
@@ -307,6 +310,16 @@
             this.buttonAddProgram.Text = "Add manually";
             this.buttonAddProgram.UseVisualStyleBackColor = true;
             this.buttonAddProgram.Click += new System.EventHandler(this.buttonAddProgram_Click);
+            // 
+            // buttonDriverSelection
+            // 
+            this.buttonDriverSelection.Location = new System.Drawing.Point(163, 15);
+            this.buttonDriverSelection.Name = "buttonDriverSelection";
+            this.buttonDriverSelection.Size = new System.Drawing.Size(147, 23);
+            this.buttonDriverSelection.TabIndex = 4;
+            this.buttonDriverSelection.Text = "Driver Selection ...";
+            this.buttonDriverSelection.UseVisualStyleBackColor = true;
+            this.buttonDriverSelection.Click += new System.EventHandler(this.buttonDriverSelection_Click);
             // 
             // VibranceGUI
             // 
@@ -369,6 +382,7 @@
         private System.Windows.Forms.Button buttonAddProgram;
         private System.Windows.Forms.Button buttonProcessExplorer;
         private System.Windows.Forms.CheckBox checkBoxNeverChangeResolutions;
+        private System.Windows.Forms.Button buttonDriverSelection;
     }
 }
 

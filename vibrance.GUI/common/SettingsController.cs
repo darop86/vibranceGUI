@@ -187,7 +187,7 @@ namespace vibrance.GUI.common
         {
             if (!IsFileExisting(_fileName))
             {
-                return GraphicsAdapterSelectionStrategy.Auto;
+                return GraphicsAdapterSelectionStrategy.AutoDetect;
             }
             StringBuilder szValueGraphicsAdapterSelectionStrategy = new StringBuilder(1024);
             GetPrivateProfileString(SzSectionName,
@@ -198,7 +198,7 @@ namespace vibrance.GUI.common
                 _fileName);
             try
             {
-                GraphicsAdapterSelectionStrategy strategy = GraphicsAdapterSelectionStrategy.Auto;
+                GraphicsAdapterSelectionStrategy strategy = GraphicsAdapterSelectionStrategy.AutoDetect;
                 if (Enum.TryParse(szValueGraphicsAdapterSelectionStrategy.ToString(), true, out strategy))
                 {
                     return strategy;
@@ -206,7 +206,7 @@ namespace vibrance.GUI.common
             }
             catch (Exception)
             { }
-            return GraphicsAdapterSelectionStrategy.Auto;
+            return GraphicsAdapterSelectionStrategy.AutoDetect;
         }
 
         public bool SetGraphicsAdapterSelectionStrategy(GraphicsAdapterSelectionStrategy strategy)

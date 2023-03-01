@@ -17,9 +17,9 @@ namespace vibrance.GUI.common
 
     public enum GraphicsAdapterSelectionStrategy
     {
-        Auto = 0,
-        Nvidia = 1,
-        Amd = 2
+        AutoDetect = 0, // Select automatically, only works if there's only one driver present
+        Nvidia = 1, // Force using NVIDIA driver
+        Amd = 2 // Force using AMD driver
     }
 
     public class GraphicsAdapterHelper
@@ -35,7 +35,7 @@ namespace vibrance.GUI.common
 
         public static GraphicsAdapter GetAdapter(GraphicsAdapterSelectionStrategy strategy)
         {
-            if (strategy == GraphicsAdapterSelectionStrategy.Auto)
+            if (strategy == GraphicsAdapterSelectionStrategy.AutoDetect)
             {
                 return AutoSelectAdapter();
             }

@@ -17,8 +17,10 @@ namespace vibrance.GUI
     static class Program
     {
         private const string ErrorGraphicsAdapterUnknown = "Failed to determine your Graphic GraphicsAdapter type (NVIDIA/AMD). Make sure you have installed a proper GPU driver. Intel laptops are not supported as stated on the website. When installing your GPU driver did not work, please contact @juvlarN at twitter. Press Yes to open twitter in your browser now. Error: ";
+        private const string ErrorNoGraphicsAdapterForStrategy = "Failed to find a graphics adapter (driver) complying with your selection strategy. Selection will be reset to 'auto-detect'. Application will be quit. Please restart in manually.";
         private const string ErrorGraphicsAdapterAmbiguous = "Both NVIDIA and AMD graphic drivers have been found on your system. This can happen when you recently switched your graphic card and did not uninstall the old drivers. Make sure to uninstall unused graphic drivers to keep your system safe and stable. Use the program \"Display Driver Uninstaller\" to uninstall your old drivers!\n\nPress Yes to open \"Display Driver Uninstaller\" download website now.\nPress No to quit vibranceGUI.";
         private const string MessageBoxCaption = "vibranceGUI Error";
+
 
         [STAThread]
         static void Main(string[] args)
@@ -30,20 +32,33 @@ namespace vibrance.GUI
                 MessageBox.Show("You can run vibranceGUI only once at a time!", MessageBoxCaption, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             NativeMethods.SetDllDirectory(CommonUtils.GetVibrance_GUI_AppDataPath());
 
-            GraphicsAdapterSelectionStrategy selectionStrategy = GraphicsAdapterSelectionStrategy.Auto;
-            {
-                SettingsController settingsController = new SettingsController();
-                selectionStrategy = settingsController.ReadGraphicsAdapterSelectionStrategy();
-            }
+            GraphicsAdapterSelectionStrategy selectionStrategy = GraphicsAdapterSelectionStrategy.AutoDetect;
+            SettingsController settingsController = new SettingsController();
+            selectionStrategy = settingsController.ReadGraphicsAdapterSelectionStrategy();
+
             GraphicsAdapter adapter = GraphicsAdapterHelper.GetAdapter(selectionStrategy);
+            if (adapter == GraphicsAdapter.Ambiguous)
+            {
+                // multiple drivers available -> user needs to select which one to use
+                GraphicsDriverSelectionUI selectionDialog = new GraphicsDriverSelectionUI(settingsController, adapter);
+                selectionDialog.ShowDialog();
+                var selectedStrategy = selectionDialog.GetSelectedStrategy();
+                adapter = GraphicsAdapterHelper.GetAdapter(selectedStrategy);
+            }
+            if (adapter == GraphicsAdapter.Unknown && selectionStrategy != GraphicsAdapterSelectionStrategy.AutoDetect)
+            {
+                // No adapter present for current selection strategy -> reset to Auto and restart
+                settingsController.SetGraphicsAdapterSelectionStrategy(GraphicsAdapterSelectionStrategy.AutoDetect);
+                MessageBox.Show(ErrorNoGraphicsAdapterForStrategy, MessageBoxCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            settingsController = null; // done with it for now -> GC
 
             Form vibranceGui = null;
-
             if (adapter == GraphicsAdapter.Amd)
             {
                 Func<List<ApplicationSetting>, Dictionary<string, Tuple<ResolutionModeWrapper, List<ResolutionModeWrapper>>>, IVibranceProxy> getProxy = (x, y) => new AmdDynamicVibranceProxy(Environment.Is64BitOperatingSystem
